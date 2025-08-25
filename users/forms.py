@@ -13,3 +13,17 @@ class UserCreationForm(BaseUserCreationForm):
     class Meta(BaseUserCreationForm.Meta):
         model = User
         fields = ("username", "email")
+
+
+class UserProfileForm(forms.ModelForm):
+    """
+    Form for updating the UserProfile.
+    """
+
+    class Meta:
+        model = UserProfile
+        fields = ("display_name", "profile_picture_file")
+
+    profile_picture_file = forms.ImageField(
+        required=False, label="Upload New Profile Picture"
+    )

@@ -48,3 +48,37 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.username}"
+
+
+class UserProfile(models.Model):
+    """
+    Extends the default User model to include a display name and a profile picture.
+    """
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    display_name = models.CharField(max_length=50, blank=True, null=True)
+    profile_picture = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user}: {self.display_name}"
+
+    def upload_profile_picture(self, file):
+        """
+        Uploads the profile picture to Cloudinary and saves the URL.
+        """
+
+        if file:
+            upload_result = cloudinary.uploader.upload(file)
+            self.profile_picture = upload_result["url"]
+            self.save()
+
+
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    """
+    Signal to create or update the user profile when a User object is saved.
+    """
+
+    if created:
+        UserProfile.objects.create(user=instance)
+    instance.profile.save()
