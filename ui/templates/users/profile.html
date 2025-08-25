@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% block title %}My Profile{% endblock %}
+{% extends request.headers.HX-Request|yesno:"_base.html,base.html" %}
+
+{% block title %}My Profile{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
