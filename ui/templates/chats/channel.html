@@ -1,0 +1,50 @@
+{% extends request.headers.HX-Request|yesno:"_base.html,base.html" %}
+
+{% block content %}
+<div class="container mt-4" ws-connect="/ws/chat/{{ channel.id }}/">
+    <div class="channel-header mb-3">
+        <h3>{{ channel.name }}</h3>
+        <p class="text-muted">{{ channel.description }}</p>
+    </div>
+
+    {% if request.user == channel.creator %}
+    <div id="admin-controls" class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Admin Controls</h5>
+            <p>
+                <strong>Invite Link:</strong> 
+                <input type="text" readonly class="form-control" value="{{ request.scheme }}://{{ request.get_host }}{{ channel.get_invite_link }}">
+            </p>
+            <form 
+                hx-post="{% url 'regenerate_invite_code' channel_id=channel.id %}"
+                hx-target="#admin-controls"
+                hx-swap="outerHTML">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary btn-sm">Generate New Link</button>
+            </form>
+            <small class="form-text text-muted">Generating a new link will disable the old one.</small>
+        </div>
+    </div>
+    {% endif %}
+
+    <div id="chat-log" class="mb-3" style="height: 50vh; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+        {% for message in messages %}
+            {% include 'chats/_message.html' %}
+        {% endfor %}
+    </div>
+
+    <form id="chat-form" ws-send>
+        <div class="input-group">
+            <input type="text" name="message" class="form-control" placeholder="Type a message..." autofocus>
+            <button class="btn btn-primary" type="submit">Send</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Simple script to clear the input after sending a message
+    document.addEventListener('htmx:wsAfterSend', function(event) {
+        document.querySelector('#chat-form input[name="message"]').value = '';
+    });
+</script>
+{% endblock %}
