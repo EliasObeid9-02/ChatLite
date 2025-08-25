@@ -1,0 +1,16 @@
+<div id="chat-message-{{ message.id }}" hx-swap-oob="beforeend:#chat-log">
+  <div class="message mb-2">
+    <img
+      src="{{ message.author.profile.profile_picture|default:'/static/default_pfp.png' }}"
+      alt="{{ message.author.username }}"
+      class="img-thumbnail"
+      style="width: 40px; height: 40px; border-radius: 50%"
+    />
+    <strong
+      >{{ message.author.profile.display_name|default:message.author.username
+      }}:</strong
+    >
+    <span>{{ message.content }}</span>
+    <small class="text-muted">{{ message.timestamp|date:"h:i A" }}</small>
+  </div>
+</div>
