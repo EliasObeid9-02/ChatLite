@@ -1,0 +1,8 @@
+*.md
+!README.md
+!LICENSE.md
+
+override.env
+
+.venv
+staticfiles/
