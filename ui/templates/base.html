@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatLite</title>
+    <style>
+      body { font-family: sans-serif; margin: 0; }
+      nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; }
+      nav .brand { font-size: 1.5rem; font-weight: bold; }
+      nav .auth-links a, nav .auth-links button { text-decoration: none; margin-left: 1rem; padding: 0.5rem 1rem; border: 1px solid transparent; border-radius: 5px; cursor: pointer; }
+      nav .auth-links button { background-color: #6c757d; color: white; }
+      main { padding: 1rem; }
+    </style>
+  </head>
+  <body hx-boost="true">
+    <nav>
+      <a href="{% url 'home' %}" class="brand">ChatLite</a>
+      <div class="auth-links">
+        {% if user.is_authenticated %}
+        <span>Welcome, {{ user.username }}!</span>
+        <a href="{% url 'users:logout' %}" hx-post="{% url 'users:logout' %}" hx-confirm="Are you sure you want to logout?">Logout</a>
+        {% else %}
+        <a href="{% url 'users:login' %}">Login</a>
+        <a href="{% url 'users:register' %}">Register</a>
+        {% endif %}
+      </div>
+    </nav>
+    <hr />
+    <main id="content">
+        {% block content %} {% endblock %}
+    </main>
+
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </body>
+</html>
