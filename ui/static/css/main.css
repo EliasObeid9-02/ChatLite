@@ -13,6 +13,13 @@
   overflow: hidden;
 }
 
+.main-layout main {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  min-width: 0;
+}
+
 main {
   flex-grow: 1;
   padding: 2rem;
@@ -64,6 +71,24 @@ main {
 }
 
 .form-group input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.2);
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--primary-text);
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.form-group textarea:focus {
   outline: none;
   border-color: var(--accent-color);
   box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.2);
