@@ -1,36 +1,63 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChatLite</title>
-    <style>
-      body { font-family: sans-serif; margin: 0; }
-      nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; }
-      nav .brand { font-size: 1.5rem; font-weight: bold; }
-      nav .auth-links a, nav .auth-links button { text-decoration: none; margin-left: 1rem; padding: 0.5rem 1rem; border: 1px solid transparent; border-radius: 5px; cursor: pointer; }
-      nav .auth-links button { background-color: #6c757d; color: white; }
-      main { padding: 1rem; }
-    </style>
-  </head>
-  <body hx-boost="true">
-    <nav>
-      <a href="{% url 'home' %}" class="brand">ChatLite</a>
-      <div class="auth-links">
-        {% if user.is_authenticated %}
-        <span>Welcome, {{ user.username }}!</span>
-        <a href="{% url 'users:logout' %}" hx-post="{% url 'users:logout' %}" hx-confirm="Are you sure you want to logout?">Logout</a>
-        {% else %}
-        <a href="{% url 'users:login' %}">Login</a>
-        <a href="{% url 'users:register' %}">Register</a>
-        {% endif %}
-      </div>
-    </nav>
-    <hr />
-    <main id="content">
-        {% block content %} {% endblock %}
-    </main>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body hx-boost="true" hx-target="#content">
+    <div class="page-container">
+        <nav class="navbar">
+            <a href="{% url 'home' %}" class="brand">ChatLite</a>
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'users:profile' user_id=user.id %}">Profile</a>
+                    <a href="#" hx-post="{% url 'users:logout' %}" hx-confirm="Are you sure you want to logout?">Logout</a>
+                {% else %}
+                    <a href="{% url 'users:login' %}">Login</a>
+                    <a href="{% url 'users:register' %}">Register</a>
+                {% endif %}
+            </div>
+        </nav>
 
+        <main id="content">
+            {% if messages %}
+            <div class="messages" style="text-align: center; padding: 1rem;">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}"
+                    style="background-color: #00BFFF; color: white; padding: 10px; border-radius: 5px; margin-bottom: 1rem;">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block layout %}{% endblock %}
+        </main>
+    </div>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-  </body>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        document.body.addEventListener('htmx:configRequest', (event) => {
+          event.detail.headers['X-CSRFToken'] = csrftoken;
+        })
+    </script>
+</body>
 </html>
