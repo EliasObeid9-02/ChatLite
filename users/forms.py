@@ -15,6 +15,13 @@ class UserRegisterForm(BaseUserCreationForm):
         model = User
         fields = ("username", "email")
 
+    widgets = {
+        "username": forms.TextInput(attrs={"class": "form-control"}),
+        "email": forms.EmailInput(attrs={"class": "form-control"}),
+        "password1": forms.PasswordInput(attrs={"class": "form-control"}),
+        "password2": forms.PasswordInput(attrs={"class": "form-control"}),
+    }
+
     def save(self, commit=True):
         """
         Save the user and then save the display_name to the user's profile.
@@ -27,6 +34,11 @@ class AuthenticationForm(BaseAuthenticationForm):
     """
     Login form to allow login with either username or email.
     """
+
+    widgets = {
+        "identifier": forms.TextInput(attrs={"class": "form-control"}),
+        "password": forms.PasswordInput(attrs={"class": "form-control"}),
+    }
 
     def clean(self):
         identifier = self.cleaned_data.get("username")
@@ -65,10 +77,17 @@ class UserProfileForm(forms.ModelForm):
     profile_picture_file = forms.ImageField(
         required=False,
         label="Upload New Profile Picture",
-        widget=forms.ClearableFileInput(
-            attrs={"accept": "image/png, image/jpeg, image/gif"}
-        ),
     )
+
+    widgets = {
+        "display_name": forms.TextInput(attrs={"class": "form-control"}),
+        "profile_picture_file": forms.ClearableFileInput(
+            attrs={
+                "class": "form-control",
+                "accept": "image/png, image/jpeg, image/gif",
+            }
+        ),
+    }
 
     class Meta:
         model = UserProfile
