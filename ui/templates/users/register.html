@@ -12,36 +12,7 @@
         >
             {% csrf_token %}
 
-            {% if form.non_field_errors %}
-            <div class="form-errors" style="color: #ff4d4d; text-align: center; margin-bottom: 1rem;">
-                {% for error in form.non_field_errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            {% for field in form %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}">
-                    {{ field.label }}
-                    {% if field.field.required %}
-                        <span style="color: var(--accent-color);">*</span>
-                    {% endif %}
-                </label>
-
-                {{ field }} {# This renders the <input> tag #}
-
-                {% if field.errors %}
-                <div style="color: #ff4d4d; font-size: 0.8rem; margin-top: 0.25rem;">
-                    {{ field.errors.0 }}
-                </div>
-                {% endif %}
-
-                {% if field.help_text %}
-                <small class="helper-text">{{ field.help_text }}</small>
-                {% endif %}
-            </div>
-            {% endfor %}
+            {% include "partials/_form.html" %}
 
             <button type="submit" class="btn">Register</button>
             <a href="{% url 'users:login' %}" class="form-link">Already have an account? Login</a>
