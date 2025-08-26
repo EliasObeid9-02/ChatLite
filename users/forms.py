@@ -6,15 +6,22 @@ from django.contrib.auth.forms import UserCreationForm as BaseUserCreationForm
 from users.models import User, UserProfile
 
 
-class UserCreationForm(BaseUserCreationForm):
+class UserRegisterForm(BaseUserCreationForm):
     """
-    A form for creating new users. Includes all the required
-    fields, plus a repeated password.
+    A registration form that includes a display_name field.
     """
 
     class Meta(BaseUserCreationForm.Meta):
         model = User
         fields = ("username", "email")
+
+    def save(self, commit=True):
+        """
+        Save the user and then save the display_name to the user's profile.
+        """
+        user = super().save(commit=commit)
+        return user
+
 
 class AuthenticationForm(BaseAuthenticationForm):
     """
