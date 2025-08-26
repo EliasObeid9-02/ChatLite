@@ -99,6 +99,7 @@ main {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s;
+  box-sizing: border-box;
 }
 
 .btn:hover {
@@ -137,11 +138,18 @@ main {
 
 /* --- Sidebar --- */
 .sidebar {
-  width: 280px;
+  width: 25%;
   background-color: var(--secondary-bg);
   padding: 1rem;
   border-right: 1px solid var(--border-color);
   flex-shrink: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .channel-list {
+  flex-grow: 1;
   overflow-y: auto;
 }
 
@@ -150,6 +158,8 @@ main {
 }
 
 .sidebar .channel-list a {
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: block;
   padding: 0.75rem;
   border-radius: 5px;
@@ -231,6 +241,7 @@ main {
   word-wrap: break-word;
   margin-bottom: 0.2rem;
   position: relative;
+  overflow-wrap: break-word;
 }
 
 .message .timestamp {
