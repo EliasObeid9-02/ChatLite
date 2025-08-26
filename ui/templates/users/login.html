@@ -1,10 +1,25 @@
-{% extends request.headers.HX-Request|yesno:"_base.html,base.html" %}
+{% extends is_htmx_request|yesno:"_base.html,base.html" %}
 
-{% block content %}
-<h2>Login</h2>
-<form method="post" hx-post="{% url 'users:login' %}" hx-target="#content">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
+{% block layout %}
+<main class="centered-layout">
+    <div class="auth-card">
+        <h2>Login</h2>
+        <form hx-post="{% url 'users:login' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">Username or Email</label>
+                <input type="text" name="username" id="id_username" required>
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <input type="password" name="password" id="id_password" required>
+            </div>
+            {% if form.errors %}
+                <p style="color: #ff4d4d; text-align: center;">Your credentials didn't match. Please try again.</p>
+            {% endif %}
+            <button type="submit" class="btn">Login</button>
+            <a href="{% url 'users:register' %}" class="form-link">Don't have an account? Register</a>
+        </form>
+    </div>
+</main>
 {% endblock %}
