@@ -62,10 +62,14 @@ class UserProfileForm(forms.ModelForm):
     Form for updating the UserProfile.
     """
 
+    profile_picture_file = forms.ImageField(
+        required=False,
+        label="Upload New Profile Picture",
+        widget=forms.ClearableFileInput(
+            attrs={"accept": "image/png, image/jpeg, image/gif"}
+        ),
+    )
+
     class Meta:
         model = UserProfile
-        fields = ("display_name", "profile_picture_file")
-
-    profile_picture_file = forms.ImageField(
-        required=False, label="Upload New Profile Picture"
-    )
+        fields = ("display_name",)
