@@ -20,11 +20,11 @@ class HomeView(HtmxMixin, TemplateView):
     - Unauthenticated users are redirected to the login page.
     """
 
+    template_name = "chats/home.html"
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect("users:login")
-        # If authenticated, render the main app template
-        self.template_name = "chats/home.html"
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -91,25 +91,21 @@ class ProfileView(HtmxMixin, LoginRequiredMixin, TemplateView):
         Fetches the profile and determines if the current user is the owner.
         """
         context = super().get_context_data(**kwargs)
-        user_id = self.kwargs.get("user_id")
+        username = self.kwargs.get("username")
 
-        # Fetch the user profile based on the user_id from the URL
-        profile_user = get_object_or_404(UserModel, id=user_id)
+        profile_user = get_object_or_404(UserModel, username=username)
         context["profile"] = profile_user.profile
 
-        # Check if the logged-in user is the owner of the profile
         is_owner = self.request.user == profile_user
         context["is_owner"] = is_owner
 
         if is_owner:
-            # If the user is the owner, add the update form to the context
             context["form"] = UserProfileForm(instance=profile_user.profile)
-
         return context
 
     def post(self, request, *args, **kwargs):
-        user_id = self.kwargs.get("user_id")
-        profile_user = get_object_or_404(UserModel, id=user_id)
+        username = self.kwargs.get("username")
+        profile_user = get_object_or_404(UserModel, username=username)
 
         if request.user != profile_user:
             return HttpResponseForbidden("You are not authorized to edit this profile.")
@@ -125,9 +121,8 @@ class ProfileView(HtmxMixin, LoginRequiredMixin, TemplateView):
                 profile_instance.upload_profile_picture(picture)
 
             profile_instance.save()
-            # 2. Add the success message
             messages.success(request, "Your profile has been updated successfully!")
-            return redirect("users:profile", user_id=user_id)
+            return redirect("users:profile", username=username)
 
         context = self.get_context_data()
         context["form"] = form
