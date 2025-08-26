@@ -1,0 +1,13 @@
+{% extends is_htmx_request|yesno:"_base.html,base.html" %}
+{# Assuming this view will be wrapped by a layout with a sidebar in a real scenario #}
+
+{% block layout %}
+<main class="centered-layout">
+  <div style="text-align: center">
+    <h2>Welcome to ChatLite!</h2>
+    <p style="color: var(--secondary-text)">
+      Select a channel from the sidebar to start chatting.
+    </p>
+  </div>
+</main>
+{% endblock %}
