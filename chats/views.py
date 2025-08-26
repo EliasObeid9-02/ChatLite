@@ -1,24 +1,39 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views import View
+from django.shortcuts import redirect
+from django.views.generic import CreateView, DetailView, RedirectView, TemplateView
 
 from chats.models import Channel, ChannelMember
+from core.mixins import HtmxMixin
 
 
-class CreateChannelView(LoginRequiredMixin, View):
-    """View to handle channel creation."""
+class ChannelContextMixin:
+    """A mixin that adds the list of user's channels to the context."""
 
-    def get(self, request, *args, **kwargs):
-        return render(request, "chats/create_channel.html")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context["user_channels"] = ChannelMember.objects.filter(
+                user=self.request.user
+            ).select_related("channel")
+        return context
 
-    def post(self, request, *args, **kwargs):
-        channel_name = request.POST.get("name")
-        channel_description = request.POST.get("description")
 
-        # Create the channel
-        channel = Channel.objects.create(
-            name=channel_name, description=channel_description, creator=request.user
+class HomeView(HtmxMixin, ChannelContextMixin, TemplateView):
+    """
+    Acts as a router based on authentication status.
+    - Authenticated users see the main application.
+    - Unauthenticated users are redirected to the login page.
+    """
+
+    template_name = "chats/home.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect("users:login")
+        return super().dispatch(request, *args, **kwargs)
+
+
         )
 
         # Automatically add the creator as a member

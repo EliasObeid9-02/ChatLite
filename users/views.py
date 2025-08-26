@@ -13,21 +13,6 @@ from users.forms import AuthenticationForm, UserProfileForm, UserRegisterForm
 UserModel = get_user_model()
 
 
-class HomeView(HtmxMixin, TemplateView):
-    """
-    Acts as a router based on authentication status.
-    - Authenticated users see the main application.
-    - Unauthenticated users are redirected to the login page.
-    """
-
-    template_name = "chats/home.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect("users:login")
-        return super().dispatch(request, *args, **kwargs)
-
-
 class LoginView(RedirectIfAuthenticatedMixin, HtmxMixin, auth_views.LoginView):
     """
     Custom login view that handles HTMX redirects.
