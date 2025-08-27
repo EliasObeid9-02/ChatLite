@@ -4,7 +4,12 @@
 <main class="centered-layout">
     <div class="auth-card">
         <h2>Login</h2>
-        <form hx-post="{% url 'users:login' %}">
+        <form
+            hx-post="{% url 'users:login' %}"
+            hx-target="#content"
+            hx-push-url="true"
+            hx-swap="innerHTML"
+        >
             {% csrf_token %}
 
             {% include "partials/_form.html" %}

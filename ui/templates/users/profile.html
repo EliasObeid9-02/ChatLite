@@ -3,7 +3,7 @@
 {% block layout %}
 <main class="centered-layout">
     <div class="auth-card">
-        <h2>{{ profile.display_name|default:profile.user.username }}'s Profile</h2>
+        <h2>{{ profile.display_name }}'s Profile</h2>
         <div style="text-align: center; margin-bottom: 2rem;">
             {% if profile.profile_picture %}
                 <img src="{{ profile.profile_picture }}" alt="Profile Picture" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;">
