@@ -1,0 +1,21 @@
+.centered-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.auth-card {
+  background-color: var(--secondary-bg);
+  padding: 2rem;
+  border-radius: 8px;
+  min-width: 40%;
+  min-height: 75%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.auth-card h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}

@@ -1,0 +1,108 @@
+/* --- Channel/Chat View --- */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-log {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 1rem; /* For scrollbar */
+}
+
+.chat-form {
+  flex-shrink: 0;
+  padding-top: 1rem;
+}
+
+.chat-form input {
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  color: var(--primary-text);
+}
+
+/* --- Message Grouping & Styling --- */
+.message-group {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.message-group .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 1rem;
+  flex-shrink: 0;
+  visibility: hidden;
+}
+
+.message-group .messages {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-group .author-name {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  color: var(--primary-text);
+}
+
+.message {
+  padding: 0.5rem 1rem;
+  border-radius: 15px;
+  background-color: var(--secondary-bg);
+  max-width: 80%;
+  word-wrap: break-word;
+  margin-bottom: 0.2rem;
+  position: relative;
+  overflow-wrap: break-word;
+}
+
+.message .timestamp {
+  font-size: 0.7rem;
+  color: var(--secondary-text);
+  text-align: right;
+  margin-top: 0.25rem;
+}
+
+.message .reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.message .reaction-emoji {
+  background-color: var(--primary-bg);
+  border-radius: 10px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--border-color);
+}
+
+.message .reaction-button {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--primary-text);
+  transition: background-color 0.2s;
+}
+
+.message .reaction-button:hover {
+  background-color: var(--primary-bg);
+}
+
+/* Message Grouping Logic */
+.message-group.show-author .author-name {
+  display: block;
+}
+.message-group.show-avatar .avatar {
+  visibility: visible;
+}

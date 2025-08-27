@@ -1,0 +1,18 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main-layout {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.main-layout #content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  min-width: 0;
+}
