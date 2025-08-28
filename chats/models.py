@@ -1,89 +1,84 @@
 import uuid
 
+from django.contrib.auth import get_user_model
 from django.db import models
-from django.urls import reverse
+from django.urls import reverse_lazy
 
-from users.models import User
+UserModel = get_user_model()
 
 
 class Channel(models.Model):
     """
-    Represents a group chat channel with a unique, revocable invite code.
+    Represents a group chat with a unique, revocable invite code.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=150)
     description = models.TextField(blank=True, null=True)
-    creator = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="created_channels"
+    owner = models.ForeignKey(
+        to=UserModel, on_delete=models.CASCADE, related_name="created_channels"
     )
-    invite_code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    invite_code = models.UUIDField(default=uuid.uuid4, unique=True, editable=True)
+    members = models.ManyToManyField(to=UserModel, related_name="member_of")
 
-    def __str__(self):
-        return f"{self.name}"
+    def save(self, *args, **kwargs):
+        """
+        Overrides the save method to add the owner as a member upon creation.
+        """
+        is_new = self._state.adding
+        super().save(*args, **kwargs)
+        if is_new:
+            self.members.add(self.owner)
 
     def get_invite_link(self):
-        """
-        Constructs the full, absolute URL for the channel invite link.
-        """
-        return reverse("chats:join_channel", kwargs={"invite_code": self.invite_code})
+        """Constructs the full URL of for joining a channel."""
+        return reverse_lazy(
+            "chats:join-channel", kwargs={"invite_code": self.invite_code}
+        )
 
-    def regenerate_invite_code(self):
-        """
-        Generates a new invite code, effectively disabling the old one.
-        """
+    def generate_invite_code(self):
+        """Creates a new invite link invalidating the old one."""
         self.invite_code = uuid.uuid4()
         self.save()
 
-
-class ChannelMember(models.Model):
-    """
-    Links a User to a Channel they are a member of.
-    """
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
-    joined_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        # Ensures a user can only join a channel once
-        unique_together = ("user", "channel")
-
     def __str__(self):
-        return f"{self.user} in {self.channel.name}"
+        return f"Channel: '{self.name}' owned by User: '{self.owner}'"
 
 
 class Message(models.Model):
     """
-    Represents a single message within a channel.
+    Represents a message in a channel
     """
 
     channel = models.ForeignKey(
-        Channel, on_delete=models.CASCADE, related_name="messages"
+        to=Channel, on_delete=models.CASCADE, related_name="channel_messages"
     )
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    sender = models.ForeignKey(
+        to=UserModel, on_delete=models.SET_NULL, related_name="user_messages", null=True
+    )
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message by {self.author} in {self.channel.name}"
+        return f"Message: '{self.content}' sent by User: '{self.sender}' in Channel: '{self.channel}'"
 
 
 class Reaction(models.Model):
     """
-    Represents an emoji reaction to a message.
+    Represents an emoji reaction on a message.
     """
 
-    message = models.ForeignKey(
-        Message, on_delete=models.CASCADE, related_name="reactions"
-    )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    emoji = models.CharField(max_length=50)  # e.g., '👍', '❤️'
-
     class Meta:
-        # Ensures a user can only react once with the same emoji to a message
-        unique_together = ("message", "user", "emoji")
+        unique_together = ("message", "reactor", "emoji")
+
+    message = models.ForeignKey(
+        to=Message, on_delete=models.CASCADE, related_name="message_reactions"
+    )
+    reactor = models.ForeignKey(
+        to=UserModel, on_delete=models.CASCADE, related_name="user_reactions"
+    )
+    emoji = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"'{self.emoji}' reaction by {self.user}"
+        return f"Reaction: '{self.emoji}' by User '{self.reactor}' on Message: '{self.message}'"
+
