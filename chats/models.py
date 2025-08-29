@@ -33,7 +33,7 @@ class Channel(models.Model):
     def get_invite_link(self):
         """Constructs the full URL of for joining a channel."""
         return reverse_lazy(
-            "chats:join-channel", kwargs={"invite_code": self.invite_code}
+            "chats:channel-join", kwargs={"invite_code": self.invite_code}
         )
 
     def generate_invite_code(self):
@@ -42,7 +42,7 @@ class Channel(models.Model):
         self.save()
 
     def get_absolute_url(self):
-        return reverse_lazy("chats:channel", kwargs={"channel_id": self.id})
+        return reverse_lazy("chats:channel-chat", kwargs={"channel_id": self.id})
 
     def __str__(self):
         return f"Channel: '{self.name}' owned by User: '{self.owner}'"
@@ -84,4 +84,3 @@ class Reaction(models.Model):
 
     def __str__(self):
         return f"Reaction: '{self.emoji}' by User '{self.reactor}' on Message: '{self.message}'"
-
