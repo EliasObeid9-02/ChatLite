@@ -1,63 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ChatLite</title>
-    <link rel="stylesheet" href="/static/css/main.css">
-</head>
-<body hx-boost="true" hx-target="#content">
-    <div class="page-container">
-        <nav class="navbar">
-            <a href="{% url 'chats:home' %}" class="brand">ChatLite</a>
-            <div class="nav-links">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'users:profile' username=user.username %}">Profile</a>
-                    <a href="#" hx-post="{% url 'users:logout' %}" hx-confirm="Are you sure you want to logout?">Logout</a>
-                {% else %}
-                    <a href="{% url 'users:login' %}">Login</a>
-                    <a href="{% url 'users:register' %}">Register</a>
-                {% endif %}
-            </div>
-        </nav>
-
-        <div id="content">
-            {% if messages %}
-            <div class="messages" style="text-align: center; padding: 1rem;">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}"
-                    style="background-color: #00BFFF; color: white; padding: 10px; border-radius: 5px; margin-bottom: 1rem;">
-                    {{ message }}
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ChatLite</title>
+        <link rel="stylesheet" href="/static/css/main.css">
+        {% block extra_head %}{% endblock %}
+    </head>
+    <body hx-boost="true" hx-target="#content" hx-ext="ws">
+        <div class="page-container">
+            <nav class="navbar">
+                <a href="{% url 'chats:home' %}" class="brand">ChatLite</a>
+                <div class="nav-links">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'users:profile' username=user.username %}">Profile</a>
+                        <a href="#"
+                           hx-post="{% url 'users:logout' %}"
+                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                           hx-confirm="Are you sure you want to logout?">Logout</a>
+                    {% else %}
+                        <a href="{% url 'users:login' %}">Login</a>
+                        <a href="{% url 'users:register' %}">Register</a>
+                    {% endif %}
                 </div>
-                {% endfor %}
+            </nav>
+            <div class="main-layout">
+                {% if user.is_authenticated %}
+                    <div class="sidebar" hx-trigger="load">
+                        <div class="channel-list">
+                            <h3>Channels</h3>
+                            {% for channel in channels %}
+                                <a href="{% url 'chats:channel-chat' channel_id=channel.id %}"
+                                   class="{% if channel.id == active_channel_id %}active{% endif %}">{{ channel.name }}</a>
+                            {% empty %}
+                                <small>No channels yet. Create one!</small>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'chats:channel-create' %}" class="create-channel-btn">Create New Channel</a>
+                    </div>
+                {% endif %}
+                <main id="content">
+                    {% block layout %}{% endblock %}
+                </main>
             </div>
-            {% endif %}
-
-            {% block layout %}{% endblock %}
         </div>
-    </div>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-
-    <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        const csrftoken = getCookie('csrftoken');
-
-        document.body.addEventListener('htmx:configRequest', (event) => {
-          event.detail.headers['X-CSRFToken'] = csrftoken;
-        })
-    </script>
-</body>
+        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    </body>
 </html>
