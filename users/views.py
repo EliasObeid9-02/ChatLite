@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView
 
-from core.mixins import RedirectIfAuthenticatedMixin
 from users.forms import AuthenticationForm, UserProfileForm, UserRegisterForm
 
 UserModel = get_user_model()
@@ -14,6 +13,17 @@ UserModel = get_user_model()
 
 def is_htmx_request(request):
     return request.headers.get("HX-Request") == "true"
+
+
+class RedirectIfAuthenticatedMixin:
+    """
+    A mixin that redirects an already authenticated user to the home page.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("chats:home")
+        return super().dispatch(request, *args, **kwargs)
 
 
 class LoginView(RedirectIfAuthenticatedMixin, auth_views.LoginView):
