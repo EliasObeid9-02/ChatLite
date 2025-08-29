@@ -50,6 +50,9 @@ TEMPLATES = [
                 "chatlite.context_processors.sidebar_context",
                 "chatlite.context_processors.htmx_context",
             ],
+            "builtins": [
+                "chatlite.templatetags.url_helper",
+            ],
         },
     },
 ]
