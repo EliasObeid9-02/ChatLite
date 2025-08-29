@@ -1,0 +1,10 @@
+{% extends is_htmx_request|yesno:"_base.html,base.html" %}
+{% block title %}Invalid Invite Code{% endblock %}
+{% block content %}
+    <div class="centered-card">
+        <h2>Invalid Invite Code</h2>
+        <p>The invite code you provided is not valid or the channel does not exist.</p>
+        <a href="{% url 'chats:home' %}" class="button">Go to Home</a>
+    </div>
+{% endblock %}
+
