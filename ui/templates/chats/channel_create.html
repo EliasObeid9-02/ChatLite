@@ -1,0 +1,16 @@
+{% extends is_htmx_request|yesno:"_base.html,base.html" %}
+{% block layout %}
+    <div class="centered-layout">
+        <div class="auth-card">
+            <h2>Create New Channel</h2>
+            <form hx-post="{% url 'chats:channel-create' %}"
+                  hx-target="#content"
+                  hx-push-url="true"
+                  hx-swap="innerHTML">
+                {% csrf_token %}
+                {% include "partials/_form.html" %}
+                <button type="submit" class="btn">Create Channel</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
