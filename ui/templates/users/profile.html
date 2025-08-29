@@ -1,31 +1,30 @@
 {% extends is_htmx_request|yesno:"_base.html,base.html" %}
-
 {% block layout %}
-<main class="centered-layout">
-    <div class="auth-card">
-        <h2>{{ profile.display_name }}'s Profile</h2>
-        <div style="text-align: center; margin-bottom: 2rem;">
-            {% if profile.profile_picture %}
-                <img src="{{ profile.profile_picture }}" alt="Profile Picture" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;">
+    <div class="centered-layout">
+        <div class="auth-card">
+            <h2>{{ profile.display_name }}'s Profile</h2>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture }}"
+                         alt="Profile Picture"
+                         style="width: 120px;
+                                height: 120px;
+                                border-radius: 50%;
+                                object-fit: cover">
+                {% endif %}
+            </div>
+            {% if is_owner %}
+                <form hx-post="{% url 'users:profile' username=profile.user.username %}"
+                      hx-encoding="multipart/form-data"
+                      enctype="multipart/form-data"
+                      hx-target="#content"
+                      hx-swap="innerHTML">
+                    {% csrf_token %}
+                    {% include "partials/_form.html" %}
+                    <button type="submit" class="btn">Save Changes</button>
+                </form>
+            {% else %}
             {% endif %}
         </div>
-
-        {% if is_owner %}
-            <form
-                hx-post="{% url 'users:profile' username=profile.user.username %}"
-                hx-encoding="multipart/form-data"
-                enctype="multipart/form-data"
-                hx-target="#content"
-                hx-swap="innerHTML"
-            >
-                {% csrf_token %}
-
-                {% include "partials/_form.html" %}
-
-                <button type="submit" class="btn">Save Changes</button>
-            </form>
-        {% else %}
-            {% endif %}
     </div>
-</main>
 {% endblock %}
