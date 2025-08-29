@@ -41,6 +41,9 @@ class Channel(models.Model):
         self.invite_code = uuid.uuid4()
         self.save()
 
+    def get_absolute_url(self):
+        return reverse_lazy("chats:channel", kwargs={"channel_id": self.id})
+
     def __str__(self):
         return f"Channel: '{self.name}' owned by User: '{self.owner}'"
 
