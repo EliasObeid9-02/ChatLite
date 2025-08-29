@@ -1,0 +1,38 @@
+{% extends is_htmx_request|yesno:"_base.html,base.html" %}
+{% block title %}{{ channel.name }}{% endblock %}
+{% block layout %}
+    <div class="centered-layout">
+        <div class="auth-card">
+            <h2>{{ channel.name }}</h2>
+            {% if is_owner %}
+                <h3>Update Channel</h3>
+                <form hx-post="{% url 'chats:channel-details' channel.id %}"
+                      hx-target="#content"
+                      hx-swap="innerHTML">
+                    {% csrf_token %}
+                    {% include "partials/_form.html" %}
+                    <button type="submit" class="btn">Update Channel</button>
+                </form>
+                <h3>Invite Link</h3>
+                {% include "chats/partials/_invite_link.html" with channel=channel %}
+                {% if is_owner %}
+                    <button hx-post="{% url 'chats:generate-invite' channel.pk %}"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                            hx-target="#invite-link-section"
+                            hx-swap="outerHTML"
+                            class="btn">Generate New Invite Link</button>
+                {% endif %}
+            {% else %}
+                <h3>Channel Information</h3>
+                <p>
+                    <strong>Name:</strong> {{ channel.name }}
+                </p>
+                <p>
+                    <strong>Description:</strong> {{ channel.description }}
+                </p>
+                <h3>Invite Link</h3>
+                {% include "chats/partials/_invite_link.html" with channel=channel is_owner=is_owner %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
