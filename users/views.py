@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -7,19 +6,24 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView
 
-from core.mixins import HtmxMixin, RedirectIfAuthenticatedMixin
+from core.mixins import RedirectIfAuthenticatedMixin
 from users.forms import AuthenticationForm, UserProfileForm, UserRegisterForm
 
 UserModel = get_user_model()
 
 
-class LoginView(RedirectIfAuthenticatedMixin, HtmxMixin, auth_views.LoginView):
+def is_htmx_request(request):
+    return request.headers.get("HX-Request") == "true"
+
+
+class LoginView(RedirectIfAuthenticatedMixin, auth_views.LoginView):
     """
     Custom login view that handles HTMX redirects.
     """
 
     form_class = AuthenticationForm
     template_name = "users/login.html"
+    success_url = reverse_lazy("chats:home")
 
     def form_valid(self, form):
         """
@@ -27,7 +31,7 @@ class LoginView(RedirectIfAuthenticatedMixin, HtmxMixin, auth_views.LoginView):
         """
         login(self.request, form.get_user())
 
-        if self.is_htmx_request():
+        if is_htmx_request(self.request):
             response = HttpResponse()
             response["HX-Redirect"] = self.get_success_url()
             return response
@@ -35,23 +39,24 @@ class LoginView(RedirectIfAuthenticatedMixin, HtmxMixin, auth_views.LoginView):
             return super().form_valid(form)
 
 
-class LogoutView(HtmxMixin, TemplateView):
+class LogoutView(TemplateView):
     """
     Logs the user out and forces a full-page redirect for HTMX requests.
     """
 
+    success_url = reverse_lazy("users:login")
+
     def post(self, request, *args, **kwargs):
         logout(request)
-        redirect_url = reverse_lazy("users:login")
 
-        if self.is_htmx_request():
+        if is_htmx_request(self.request):
             response = HttpResponse()
-            response["HX-Redirect"] = redirect_url
+            response["HX-Redirect"] = self.success_url
             return response
-        return redirect(redirect_url)
+        return redirect(self.success_url)
 
 
-class RegisterView(RedirectIfAuthenticatedMixin, HtmxMixin, CreateView):
+class RegisterView(RedirectIfAuthenticatedMixin, CreateView):
     """
     View for user registration using the custom form with a display_name field.
     """
@@ -61,7 +66,7 @@ class RegisterView(RedirectIfAuthenticatedMixin, HtmxMixin, CreateView):
     success_url = reverse_lazy("users:login")
 
 
-class ProfileView(HtmxMixin, LoginRequiredMixin, TemplateView):
+class ProfileView(LoginRequiredMixin, TemplateView):
     """
     Displays a user's profile.
     - If the visitor is the profile owner, it also displays and
@@ -93,7 +98,7 @@ class ProfileView(HtmxMixin, LoginRequiredMixin, TemplateView):
         profile_user = get_object_or_404(UserModel, username=username)
 
         if request.user != profile_user:
-            return HttpResponseForbidden("You are not authorized to edit this profile.")
+            return render(request, "unauthorized.html")
 
         form = UserProfileForm(
             request.POST, request.FILES, instance=profile_user.profile
@@ -106,7 +111,6 @@ class ProfileView(HtmxMixin, LoginRequiredMixin, TemplateView):
                 profile_instance.upload_profile_picture(picture)
 
             profile_instance.save()
-            messages.success(request, "Your profile has been updated successfully!")
             return redirect("users:profile", username=username)
 
         context = self.get_context_data()
