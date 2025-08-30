@@ -9,8 +9,10 @@
   background-color: var(--secondary-bg);
   padding: 2rem;
   border-radius: 8px;
-  min-width: 40%;
-  min-height: 75%;
+  min-width: 30%;
+  max-width: 50%;
+  min-height: 40%;
+  max-height: 75%;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
