@@ -1,0 +1,111 @@
+{% extends is_htmx_request|yesno:"_base.html,base.html" %}
+{% load tz %}
+{% block layout %}
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="channel-info">
+                <h2>{{ channel.name }}</h2>
+                <small>{{ members_count }} members</small>
+            </div>
+            <a href="{% url 'chats:channel-details' channel_id=channel.id %}"
+               class="channel-details-link">Details</a>
+        </div>
+        <div class="chat-log">
+            {% for group in grouped_messages %}
+                {% include "chats/partials/_message_group.html" with group=group %}
+            {% empty %}
+                <p class="no-messages">No messages yet. Be the first to say something!</p>
+            {% endfor %}
+        </div>
+        <div class="chat-form">
+            <form id="chat-form">
+                {% csrf_token %}
+                {{ form.content }}
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        const channelId = "{{ channel.id }}";
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + channelId
+            + '/'
+        );
+
+        let lastMessageSenderId = null;
+        let lastMessageTimestamp = null;
+
+        // Initialize lastMessageSenderId and lastMessageTimestamp from the last message on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatLog = document.querySelector('.chat-log');
+            const lastMessageGroup = chatLog.lastElementChild;
+
+            if (lastMessageGroup && lastMessageGroup.classList.contains('message-group')) {
+                const lastMessageInGroup = lastMessageGroup.querySelector('.message:last-child');
+                if (lastMessageInGroup) {
+                    lastMessageSenderId = lastMessageInGroup.dataset.senderId;
+                    lastMessageTimestamp = new Date(lastMessageInGroup.dataset.timestamp);
+                }
+            }
+        });
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const messageHtml = data.html;
+            const messageData = data.message_data;
+
+            const chatLog = document.querySelector('.chat-log');
+            const newMessageTimestamp = new Date(messageData.timestamp);
+            const fiveMinutesAgo = new Date(newMessageTimestamp.getTime() - (5 * 60 * 1000));
+
+            if (lastMessageSenderId == messageData.sender_id && lastMessageTimestamp && lastMessageTimestamp > fiveMinutesAgo) {
+                // Append to existing group
+                const lastMessageGroup = chatLog.lastElementChild;
+                if (lastMessageGroup) {
+                    const messagesDiv = lastMessageGroup.querySelector('.messages');
+                    if (messagesDiv) {
+                        messagesDiv.insertAdjacentHTML('beforeend', messageHtml);
+                    }
+                }
+            } else {
+                // Create new group
+                const newGroupHtml = `
+                    <div class="message-group show-author show-avatar">
+                        <img src="${messageData.sender_avatar}" alt="Avatar" class="avatar">
+                        <div class="messages">
+                            <div class="author-name">
+                                ${messageData.sender_display_name} <small class="timestamp">${new Date(messageData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                            </div>
+                            ${messageHtml}
+                        </div>
+                    </div>
+                `;
+                chatLog.insertAdjacentHTML('beforeend', newGroupHtml);
+            }
+
+            // Update last message state
+            lastMessageSenderId = messageData.sender_id;
+            lastMessageTimestamp = newMessageTimestamp;
+
+            // Scroll to bottom
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-form').onsubmit = function(e) {
+            e.preventDefault();
+            const messageInput = document.querySelector('[name="content"]');
+            const message = messageInput.value;
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInput.value = '';
+        };
+    </script>
+{% endblock %}
