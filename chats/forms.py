@@ -1,6 +1,6 @@
 from django import forms
 
-from chats.models import Channel
+from chats.models import Channel, Message
 
 
 class ChannelCreateForm(forms.ModelForm):
@@ -36,4 +36,13 @@ class ChannelUpdateForm(forms.ModelForm):
             "description": forms.Textarea(
                 attrs={"placeholder": "New Channel Description (optional)", "rows": 3}
             ),
+        }
+
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ("content",)
+        widgets = {
+            "content": forms.TextInput(attrs={"placeholder": "Type your message..."}),
         }
