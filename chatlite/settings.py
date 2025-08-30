@@ -28,6 +28,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "chatlite.middleware.TimezoneMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -59,6 +60,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "chatlite.wsgi.application"
 ASGI_APPLICATION = "chatlite.asgi.application"
+
+
+# WebSocket setup
+# For development, use in-memory backend
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
 
 
 # Database
