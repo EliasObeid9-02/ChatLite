@@ -157,19 +157,48 @@
   padding: 0.2rem 0.5rem;
   font-size: 0.8rem;
   border: 1px solid var(--border-color);
-}
-
-.message .reaction-button {
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.2rem 0.5rem;
   cursor: pointer;
-  font-size: 0.8rem;
-  color: var(--primary-text);
   transition: background-color 0.2s;
 }
 
-.message .reaction-button:hover {
-  background-color: var(--primary-bg);
+.message .reaction-emoji:hover {
+  background-color: var(--secondary-bg);
+}
+
+.message .reaction-emoji.reacted {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.no-reactions {
+  font-size: 0.7rem;
+  color: var(--secondary-text);
+  margin-left: 0.5rem;
+}
+
+/* Reaction Menu */
+.reaction-menu {
+  position: absolute;
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.reaction-menu-item {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: transform 0.1s ease-in-out;
+}
+
+.reaction-menu-item:hover {
+  transform: scale(1.2);
 }
