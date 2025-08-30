@@ -13,6 +13,10 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://chatlite-9a1y.onrender.com",
+]
+
 
 # Application definition
 INSTALLED_APPS = [
