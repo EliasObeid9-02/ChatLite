@@ -33,7 +33,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if hasattr(user, "profile"):
             display_name = user.profile.display_name
             if user.profile.profile_picture:
-                profile_picture = user.profile.profile_picture.url
+                profile_picture = user.profile.profile_picture
         return {"display_name": display_name, "profile_picture": profile_picture}
 
     async def _save_message(self, channel_id, sender, content):
@@ -167,7 +167,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Re-fetch reactions for the current user
         message = await sync_to_async(Message.objects.get)(id=message_id)
         user_reactions = await sync_to_async(list)(
-            message.message_reactions.filter(reactor=current_user_id).values_list("emoji", flat=True)
+            message.message_reactions.filter(reactor=current_user_id).values_list(
+                "emoji", flat=True
+            )
         )
         user_reacted_emojis = set(user_reactions)
 
