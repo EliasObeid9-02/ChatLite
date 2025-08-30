@@ -13,4 +13,5 @@ python manage.py migrate --noinput
 log "Collecting static files"
 python manage.py collectstatic --noinput --clear
 
-exec "$@"
+log "Starting Django"
+daphne -b 0.0.0.0 -p 8000 chatlite.asgi:application
