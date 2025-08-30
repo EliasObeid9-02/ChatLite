@@ -61,7 +61,7 @@ class ChannelChatView(LoginRequiredMixin, TemplateView):
                 current_group = {
                     "sender": message.sender,
                     "avatar": (
-                        message.sender.profile.profile_picture.url
+                        message.sender.profile.profile_picture
                         if hasattr(message.sender, "profile")
                         and message.sender.profile.profile_picture
                         else "/static/images/default_avatar.png"
