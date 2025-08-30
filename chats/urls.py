@@ -7,6 +7,7 @@ from chats.views import (
     GenerateInviteCodeView,
     HomeView,
     JoinChannelView,
+    ToggleReactionView,
 )
 
 app_name = "chats"
@@ -30,4 +31,5 @@ urlpatterns = [
         GenerateInviteCodeView.as_view(),
         name="generate-invite",
     ),
+    path("message/react/", ToggleReactionView.as_view(), name="toggle_reaction"),
 ]

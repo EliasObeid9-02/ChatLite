@@ -7,7 +7,7 @@ from asgiref.sync import async_to_sync
 import json
 
 from chats.forms import ChannelCreateForm, ChannelUpdateForm, MessageForm
-from chats.models import Channel
+from chats.models import Channel, Message, Reaction
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -23,14 +23,28 @@ class ChannelChatView(LoginRequiredMixin, TemplateView):
         if request.user not in channel.members.all():
             return render(request, "unauthorized.html")
 
-        messages = channel.channel_messages.order_by("timestamp").select_related(
-            "sender__profile"
+        messages = (
+            channel.channel_messages.order_by("timestamp")
+            .select_related("sender__profile")
+            .prefetch_related("message_reactions__reactor")
         )
 
         grouped_messages = []
         current_group = None
 
         for message in messages:
+            # Process reactions for each message
+            reaction_counts = {}
+            user_reacted_emojis = set()
+            for reaction in message.message_reactions.all():
+                reaction_counts.setdefault(reaction.emoji, 0)
+                reaction_counts[reaction.emoji] += 1
+                if reaction.reactor == request.user:
+                    user_reacted_emojis.add(reaction.emoji)
+
+            message.reaction_counts = reaction_counts
+            message.user_reacted_emojis = user_reacted_emojis
+
             if (
                 current_group
                 and current_group["sender"] == message.sender
@@ -71,8 +85,6 @@ class ChannelChatView(LoginRequiredMixin, TemplateView):
             "form": MessageForm(),
         }
         return render(request, self.template_name, context)
-
-    
 
 
 class CreateChannelView(LoginRequiredMixin, CreateView):
@@ -154,3 +166,39 @@ class GenerateInviteCodeView(LoginRequiredMixin, View):
         channel.generate_invite_code()
         context = {"channel": channel}
         return render(request, self.invite_link_template_name, context)
+
+
+class ToggleReactionView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        message_id = request.POST.get("message_id")
+        emoji = request.POST.get("emoji")
+
+        message = get_object_or_404(Message, id=message_id)
+        reactor = request.user
+
+        try:
+            reaction = Reaction.objects.get(
+                message=message, reactor=reactor, emoji=emoji
+            )
+            reaction.delete()
+        except Reaction.DoesNotExist:
+            Reaction.objects.create(message=message, reactor=reactor, emoji=emoji)
+
+        # Re-fetch reactions for the message to update the count
+        reactions = message.message_reactions.select_related("reactor")
+        reaction_counts = {}
+        user_reacted_emojis = set()
+
+        for reaction in reactions:
+            reaction_counts.setdefault(reaction.emoji, 0)
+            reaction_counts[reaction.emoji] += 1
+            if reaction.reactor == request.user:
+                user_reacted_emojis.add(reaction.emoji)
+
+        context = {
+            "message_id": message_id,
+            "reaction_counts": reaction_counts,
+            "user_reacted_emojis": user_reacted_emojis,
+            "current_user_id": str(request.user.id),
+        }
+        return render(request, "chats/partials/_reactions_list.html", context)
