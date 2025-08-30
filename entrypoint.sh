@@ -7,6 +7,9 @@ log() {
 
 log "Starting Django project initialization"
 
+log "Starting Redis server in background"
+redis-server --daemonize yes --port 6379 --bind 127.0.0.1
+
 log "Running database migrations"
 python manage.py migrate --noinput
 

@@ -74,7 +74,10 @@ ASGI_APPLICATION = "chatlite.asgi.application"
 # For development, use in-memory backend
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get("REDIS_URL", "redis://localhost:6379/0")],
+        },
     }
 }
 
