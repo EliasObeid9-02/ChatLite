@@ -54,44 +54,55 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            const messageHtml = data.html;
-            const messageData = data.message_data;
 
-            const chatLog = document.querySelector('.chat-log');
-            const newMessageTimestamp = new Date(messageData.timestamp);
-            const fiveMinutesAgo = new Date(newMessageTimestamp.getTime() - (5 * 60 * 1000));
-
-            if (lastMessageSenderId == messageData.sender_id && lastMessageTimestamp && lastMessageTimestamp > fiveMinutesAgo) {
-                // Append to existing group
-                const lastMessageGroup = chatLog.lastElementChild;
-                if (lastMessageGroup) {
-                    const messagesDiv = lastMessageGroup.querySelector('.messages');
-                    if (messagesDiv) {
-                        messagesDiv.insertAdjacentHTML('beforeend', messageHtml);
+            if (data.type === "reaction_update") {
+                const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
+                if (messageElement) {
+                    const reactionsContainer = messageElement.querySelector('.reactions');
+                    if (reactionsContainer) {
+                        reactionsContainer.outerHTML = data.html;
                     }
                 }
-            } else {
-                // Create new group
-                const newGroupHtml = `
-                    <div class="message-group show-author show-avatar">
-                        <img src="${messageData.sender_avatar}" alt="Avatar" class="avatar">
-                        <div class="messages">
-                            <div class="author-name">
-                                ${messageData.sender_display_name} <small class="timestamp">${new Date(messageData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+            } else if (data.html) {
+                const messageHtml = data.html;
+                const messageData = data.message_data;
+
+                const chatLog = document.querySelector('.chat-log');
+                const newMessageTimestamp = new Date(messageData.timestamp);
+                const fiveMinutesAgo = new Date(newMessageTimestamp.getTime() - (5 * 60 * 1000));
+
+                if (lastMessageSenderId == messageData.sender_id && lastMessageTimestamp && lastMessageTimestamp > fiveMinutesAgo) {
+                    // Append to existing group
+                    const lastMessageGroup = chatLog.lastElementChild;
+                    if (lastMessageGroup) {
+                        const messagesDiv = lastMessageGroup.querySelector('.messages');
+                        if (messagesDiv) {
+                            messagesDiv.insertAdjacentHTML('beforeend', messageHtml);
+                        }
+                    }
+                } else {
+                    // Create new group
+                    const newGroupHtml = `
+                        <div class="message-group show-author show-avatar">
+                            <img src="${messageData.sender_avatar}" alt="Avatar" class="avatar">
+                            <div class="messages">
+                                <div class="author-name">
+                                    ${messageData.sender_display_name} <small class="timestamp">${new Date(messageData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                                </div>
+                                ${messageHtml}
                             </div>
-                            ${messageHtml}
                         </div>
-                    </div>
-                `;
-                chatLog.insertAdjacentHTML('beforeend', newGroupHtml);
+                    `;
+                    chatLog.insertAdjacentHTML('beforeend', newGroupHtml);
+                }
+
+                // Update last message state
+                lastMessageSenderId = messageData.sender_id;
+                lastMessageTimestamp = newMessageTimestamp;
+
+                // Scroll to bottom
+                chatLog.scrollTop = chatLog.scrollHeight;
             }
-
-            // Update last message state
-            lastMessageSenderId = messageData.sender_id;
-            lastMessageTimestamp = newMessageTimestamp;
-
-            // Scroll to bottom
-            chatLog.scrollTop = chatLog.scrollHeight;
         };
 
         chatSocket.onclose = function(e) {
@@ -103,9 +114,61 @@
             const messageInput = document.querySelector('[name="content"]');
             const message = messageInput.value;
             chatSocket.send(JSON.stringify({
+                'type': 'message',
                 'message': message
             }));
             messageInput.value = '';
         };
+
+        // Reaction menu logic
+        const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢'];
+        let reactionMenu = null;
+
+        function createReactionMenu(messageId, x, y) {
+            if (reactionMenu) {
+                reactionMenu.remove();
+            }
+
+            reactionMenu = document.createElement('div');
+            reactionMenu.classList.add('reaction-menu');
+            reactionMenu.style.left = `${x}px`;
+            reactionMenu.style.top = `${y}px`;
+
+            reactionEmojis.forEach(emoji => {
+                const button = document.createElement('button');
+                button.classList.add('reaction-menu-item');
+                button.textContent = emoji;
+                button.addEventListener('click', () => {
+                    chatSocket.send(JSON.stringify({
+                        'type': 'reaction',
+                        'message_id': messageId,
+                        'emoji': emoji
+                    }));
+                    reactionMenu.remove();
+                    reactionMenu = null;
+                });
+                reactionMenu.appendChild(button);
+            });
+
+            document.body.appendChild(reactionMenu);
+
+            // Close menu if clicked outside
+            document.addEventListener('click', function closeMenu(event) {
+                if (reactionMenu && !reactionMenu.contains(event.target) && !event.target.closest('.message')) {
+                    reactionMenu.remove();
+                    reactionMenu = null;
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }
+
+        document.querySelector('.chat-log').addEventListener('contextmenu', function(e) {
+            const messageElement = e.target.closest('.message');
+            if (messageElement) {
+                e.preventDefault();
+                const messageId = messageElement.dataset.messageId;
+                createReactionMenu(messageId, e.pageX, e.pageY);
+            }
+        });
     </script>
 {% endblock %}
