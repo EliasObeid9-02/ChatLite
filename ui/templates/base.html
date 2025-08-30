@@ -33,7 +33,7 @@
                                 <a href="{% url 'chats:channel-chat' channel_id=channel.id %}"
                                    class="{% if channel.id == active_channel_id %}active{% endif %}">{{ channel.name }}</a>
                             {% empty %}
-                                <small>No channels yet. Create one!</small>
+                                <small>No channels yet. Create or join one!</small>
                             {% endfor %}
                         </div>
                         <a href="{% url 'chats:channel-create' %}" class="create-channel-btn">Create New Channel</a>
@@ -44,6 +44,12 @@
                 </main>
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                document.cookie = "django_timezone=" + timezone + ";path=/;max-age=" + (7 * 24 * 60 * 60);
+            });
+        </script>
         <script src="https://unpkg.com/htmx.org@1.9.12"></script>
         <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
     </body>
