@@ -1,0 +1,12 @@
+{% load tz %}
+<div class="message-group show-author show-avatar">
+    <img src="{{ group.avatar|default:'/static/images/default_avatar.png' }}"
+         alt="Avatar"
+         class="avatar">
+    <div class="messages">
+        <div class="author-name">
+            {{ group.display_name }} <small class="timestamp">{{ group.start_timestamp|localtime|date:"H:i" }}</small>
+        </div>
+        {% for message in group.messages %}<div class="message">{{ message.content }}</div>{% endfor %}
+    </div>
+</div>
