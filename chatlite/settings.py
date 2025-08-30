@@ -97,4 +97,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # Other
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
+LOGIN_URL = reverse_lazy("users:login")
 LOGIN_REDIRECT_URL = reverse_lazy("chats:home")
