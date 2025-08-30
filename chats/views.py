@@ -1,10 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, View
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+import json
 
-from chats.forms import ChannelCreateForm, ChannelUpdateForm
+from chats.forms import ChannelCreateForm, ChannelUpdateForm, MessageForm
 from chats.models import Channel
 
 
@@ -12,12 +14,65 @@ class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "chats/home.html"
 
 
-# TODO: implement
-class ChannelChatView(LoginRequiredMixin, View):
+class ChannelChatView(LoginRequiredMixin, TemplateView):
     template_name = "chats/channel_chat.html"
 
     def get(self, request, channel_id):
-        return HttpResponse(f"Channel View for ID: {channel_id}")
+        channel = get_object_or_404(Channel, id=channel_id)
+
+        if request.user not in channel.members.all():
+            return render(request, "unauthorized.html")
+
+        messages = channel.channel_messages.order_by("timestamp").select_related(
+            "sender__profile"
+        )
+
+        grouped_messages = []
+        current_group = None
+
+        for message in messages:
+            if (
+                current_group
+                and current_group["sender"] == message.sender
+                and (
+                    message.timestamp - current_group["last_timestamp"]
+                ).total_seconds()
+                < 60 * 5  # Group messages within 5 minutes
+            ):
+                current_group["messages"].append(message)
+                current_group["last_timestamp"] = message.timestamp
+            else:
+                if current_group:
+                    grouped_messages.append(current_group)
+                current_group = {
+                    "sender": message.sender,
+                    "avatar": (
+                        message.sender.profile.profile_picture.url
+                        if hasattr(message.sender, "profile")
+                        and message.sender.profile.profile_picture
+                        else "/static/images/default_avatar.png"
+                    ),
+                    "display_name": (
+                        message.sender.profile.display_name
+                        if hasattr(message.sender, "profile")
+                        else message.sender.username
+                    ),
+                    "messages": [message],
+                    "start_timestamp": message.timestamp,
+                    "last_timestamp": message.timestamp,
+                }
+        if current_group:
+            grouped_messages.append(current_group)
+
+        context = {
+            "channel": channel,
+            "members_count": channel.members.count(),
+            "grouped_messages": grouped_messages,
+            "form": MessageForm(),
+        }
+        return render(request, self.template_name, context)
+
+    
 
 
 class CreateChannelView(LoginRequiredMixin, CreateView):
@@ -38,6 +93,7 @@ class CreateChannelView(LoginRequiredMixin, CreateView):
 
 class ChannelView(LoginRequiredMixin, TemplateView):
     template_name = "chats/channel_view.html"
+    unauthorized_template_name = "unauthorized.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -56,7 +112,7 @@ class ChannelView(LoginRequiredMixin, TemplateView):
         channel = get_object_or_404(Channel, id=channel_id)
 
         if request.user != channel.owner:
-            return render(request, "unauthorized.html")
+            return render(request, self.unauthorized_template_name)
 
         form = ChannelUpdateForm(request.POST, instance=channel)
         if form.is_valid():
@@ -70,11 +126,13 @@ class ChannelView(LoginRequiredMixin, TemplateView):
 
 
 class JoinChannelView(LoginRequiredMixin, View):
+    invalid_invite_template_name = "chats/invalid_invite.html"
+
     def get(self, request, invite_code):
         try:
             channel = Channel.objects.get(invite_code=invite_code)
         except Channel.DoesNotExist:
-            return render(request, "chats/invalid_invite.html", status=404)
+            return render(request, self.invalid_invite_template_name, status=404)
 
         user = request.user
         # if the user is not a member we add them and redirect to the chat
@@ -84,12 +142,15 @@ class JoinChannelView(LoginRequiredMixin, View):
 
 
 class GenerateInviteCodeView(LoginRequiredMixin, View):
+    invite_link_template_name = "chats/partials/_invite_link.html"
+    unauthorized_template_name = "unauthorized.html"
+
     def post(self, request, channel_id):
         channel = get_object_or_404(Channel, id=channel_id)
 
         if request.user != channel.owner:
-            return render(request, "unauthorized.html")
+            return render(request, self.unauthorized_template_name)
 
         channel.generate_invite_code()
         context = {"channel": channel}
-        return render(request, "chats/partials/_invite_link.html", context)
+        return render(request, self.invite_link_template_name, context)
