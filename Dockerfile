@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Psycopg2 build dependencies
-RUN apk add --no-cache gcc python3-dev musl-dev postgresql-dev redis
+RUN apk add --no-cache gcc python3-dev musl-dev postgresql-dev
 
 WORKDIR /app
 
