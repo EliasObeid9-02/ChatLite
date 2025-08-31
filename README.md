@@ -18,7 +18,6 @@ The project will follow a standard Django project layout.
   - **`settings.py`**: The main project settings.
   - **`urls.py`**: The main project URL configuration.
   - **`asgi.py`**: ASGI entrypoint for Channels.
-  - **`wsgi.py`**: WSGI entrypoint for the web server.
 - **`/chats`**: The chat and messaging application directory.
 - **`/users`**: The user authentication application directory.
 - **`/ui`**: The main directory containing HTML and CSS files.
