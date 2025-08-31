@@ -43,6 +43,34 @@ ChatLite offers a comprehensive set of features designed for a seamless real-tim
 - **Real-Time Messaging:** Engage in instant conversations with real-time message sending and receiving, eliminating the need for page reloads.
 - **Emoji Reactions:** Express yourself with emoji reactions to messages, visible in real-time to all channel members.
 
+## Running Locally with Docker
+
+To run ChatLite locally using Docker, follow these steps:
+
+1. **Environment Configuration:**
+   Before starting the application, ensure you have configured your environment variables. You can either:
+   - Modify the `base.env` file directly in the project root directory.
+   - Create an `override.env` file in the project root directory to override specific variables from `base.env`.
+     Ensure you fill in the missing values, especially for database and Cloudinary credentials.
+
+2. **Build and Run with Docker Compose:**
+   Navigate to the project's root directory in your terminal and execute the following command:
+
+   ```bash
+   docker compose up --build
+   ```
+
+   This command will build the Docker images and set up the necessary services (web, database).
+
+3. **Access the Application:**
+   Once the services are up and running, you can access the ChatLite application in your web browser at:
+
+   ```
+   http://localhost:8000
+   ```
+
+   It might take a few moments for the database to initialize and the Django application to start completely.
+
 ## Screenshots
 
 <table style="width:100%; border-collapse: collapse;">
