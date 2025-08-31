@@ -32,11 +32,20 @@
         </form>
     </div>
     <script>
+        function scrollToBottom() {
+            const chatLog = document.getElementById('chat-log');
+            if (chatLog) {
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', scrollToBottom);
         document.addEventListener('htmx:wsAfterSend', function (evt) {
             const messageInput = document.querySelector('[name="content"]');
             if (messageInput) {
                 messageInput.value = '';
             }
+            scrollToBottom(); // Scroll to bottom after sending a message
         });
 
         // Reaction menu logic
