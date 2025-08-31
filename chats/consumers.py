@@ -98,11 +98,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data_json = json.loads(text_data)
             message_type = text_data_json.get("type")
 
-            if "content" in text_data_json:
-                message_type = "message"
-            elif "emoji" in text_data_json:
-                message_type = "reaction"
-
             if message_type == "message":
                 message_content = text_data_json["content"]
                 sender = self.scope["user"]
@@ -244,9 +239,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Re-fetch reactions for the current user
             message = await sync_to_async(Message.objects.get)(id=message_id)
             user_reactions = await sync_to_async(list)(
-                message.message_reactions.filter(
-                    reactor=current_user_id
-                ).values_list("emoji", flat=True)
+                message.message_reactions.filter(reactor=current_user_id).values_list(
+                    "emoji", flat=True
+                )
             )
             user_reacted_emojis = set(user_reactions)
 

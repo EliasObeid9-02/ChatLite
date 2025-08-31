@@ -1,10 +1,6 @@
 <div class="reactions" id="reactions-for-message-{{ message_id }}">
     {% for emoji, count in reaction_counts.items %}
-        <div class="reaction-emoji {% if emoji in user_reacted_emojis %}reacted{% endif %}"
-             hx-post="{% url 'chats:toggle_reaction' %}"
-             hx-vals='{"message_id": "{{ message_id }}", "emoji": "{{ emoji }}"}'
-             hx-target="#reactions-for-message-{{ message_id }}"
-             hx-swap="outerHTML">{{ emoji }} {{ count }}</div>
+        <div class="reaction-emoji {% if emoji in user_reacted_emojis %}reacted{% endif %}">{{ emoji }} {{ count }}</div>
     {% endfor %}
 </div>
 
