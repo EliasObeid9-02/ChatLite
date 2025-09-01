@@ -43,6 +43,20 @@ ChatLite offers a comprehensive set of features designed for a seamless real-tim
 - **Real-Time Messaging:** Engage in instant conversations with real-time message sending and receiving, eliminating the need for page reloads.
 - **Emoji Reactions:** Express yourself with emoji reactions to messages, visible in real-time to all channel members.
 
+## Technology Decisions
+
+The ChatLite project leverages a modern technology stack to deliver a robust and real-time chat experience. Here’s a summary of the core technologies and the rationale behind their selection:
+
+- **Backend (Django):** Django was chosen for its "batteries-included" philosophy, providing a comprehensive suite of tools for rapid development, including an ORM, authentication, and security features. Its scalability and extensive documentation make it an ideal choice for building the application's foundation.
+- **Frontend (HTMX):** HTMX was selected to enhance the user experience by enabling dynamic, real-time updates without complex JavaScript. It allows for seamless interactions, such as real-time messaging and emoji reactions, by making simple AJAX requests, keeping the frontend lightweight and responsive.
+- **Database (PostgreSQL):** PostgreSQL is a powerful, open-source relational database known for its reliability and data integrity. It is well-suited for handling the structured data of a chat application, ensuring that messages, user profiles, and channel information are stored securely and efficiently.
+- **Real-Time Communication (Django Channels):** To support real-time features like instant messaging and live emoji reactions, Django Channels was integrated. It extends Django to handle WebSockets, allowing for persistent, bidirectional communication between the client and server.
+- **In-Memory Data Store (Redis):** Redis serves as the message broker for Django Channels, enabling real-time communication across multiple server instances. While an in-memory backend is suitable for local development, Redis is essential for production environments to ensure WebSocket connections are reliably managed and scaled.
+- **Deployment (Render):** Render was chosen for its ease of use and seamless deployment capabilities. It simplifies the process of deploying web applications, managing databases, and scaling services, making it an excellent platform for hosting ChatLite.
+- **File Storage (Cloudinary):** For handling user-uploaded profile pictures, Cloudinary was selected. It provides a robust, cloud-based solution for image management, including storage, transformation, and delivery, offloading the complexity of file handling from the application server.
+- **Containerization (Docker Compose):** Docker Compose is used to create a consistent and reproducible development environment. It allows the application and its dependencies (like PostgreSQL) to be containerized, ensuring that the development setup is identical for all team members and closely mirrors the production environment.
+- **Package Management (uv):** `uv` is utilized for Python package management due to its high performance and modern dependency resolution capabilities. It streamlines the process of installing and managing project dependencies, contributing to a more efficient development workflow.
+
 ## Running Locally with Docker
 
 To run ChatLite locally using Docker, follow these steps:
