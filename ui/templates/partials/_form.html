@@ -1,8 +1,3 @@
-{% comment %}
-  This partial renders a form's fields.
-  It automatically adds CSS classes, error messages, help text,
-  and a required field asterisk.
-{% endcomment %}
 {% if form.non_field_errors %}
     <div class="error form-errors">
         {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}

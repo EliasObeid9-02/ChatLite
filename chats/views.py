@@ -1,13 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import CreateView, TemplateView, View
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-import json
 
 from chats.forms import ChannelCreateForm, ChannelUpdateForm, MessageForm
-from chats.models import Channel, Message, Reaction
+from chats.models import Channel
 
 
 class HomeView(LoginRequiredMixin, TemplateView):

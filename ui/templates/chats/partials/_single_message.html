@@ -1,5 +1,8 @@
 {% load tz %}
-<div class="message" data-message-id="{{ message_id }}" data-sender-id="{{ sender_id }}" data-timestamp="{{ timestamp }}">
+<div class="message"
+     data-message-id="{{ message_id }}"
+     data-sender-id="{{ sender_id }}"
+     data-timestamp="{{ timestamp }}">
     {{ message_content }}
     {% include "chats/partials/_reactions_list.html" with message_id=message_id reaction_counts=reaction_counts user_reacted_emojis=user_reacted_emojis %}
 </div>
