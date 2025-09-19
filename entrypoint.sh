@@ -7,8 +7,6 @@ log() {
 
 log "Starting Django project initialization"
 
-
-
 log "Running database migrations"
 python manage.py migrate --noinput
 
