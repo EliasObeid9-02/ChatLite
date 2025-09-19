@@ -13,5 +13,10 @@ python manage.py migrate --noinput
 log "Collecting static files"
 python manage.py collectstatic --noinput --clear
 
-log "Starting Django"
-daphne -b 0.0.0.0 -p 8000 chatlite.asgi:application
+if [ "$DEBUG" = "True" ]; then
+    log "Starting Django with reload"
+    uvicorn chatlite.asgi:application --host 0.0.0.0 --port 8000 --reload --reload-include "*.html" --reload-include "*.css" --reload-include "*.svg" --reload-include "*.png"
+else
+    log "Starting Django"
+    uvicorn chatlite.asgi:application --host 0.0.0.0 --port 8000
+fi
