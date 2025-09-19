@@ -1,12 +1,30 @@
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
+from django.core.management.utils import get_random_secret_key
 from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.environ.get("SECRET_KEY")
+
 DEBUG = os.environ.get("DEBUG", "True") == "True"
+
+if os.environ.get("SECRET_KEY"):
+    SECRET_KEY = os.environ["SECRET_KEY"]
+elif DEBUG:
+    SECRET_KEY = get_random_secret_key()
+    is_testing: bool = len(sys.argv) > 1 and sys.argv[1] == "test"
+    if not is_testing:
+        print(
+            "WARNING: No SECRET_KEY set — generated a development key. "
+            "Add SECRET_KEY=<the key below> to your base.env to persist.",
+            file=sys.stderr,
+        )
+        print(SECRET_KEY, file=sys.stderr)
+else:
+    raise RuntimeError("SECRET_KEY must be set in production")
+
 ALLOWED_HOSTS = [
     "chatlite-9a1y.onrender.com",
     ".localhost",
