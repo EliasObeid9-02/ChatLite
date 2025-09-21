@@ -1,9 +1,9 @@
 {% extends is_htmx_request|yesno:"_base.html,base.html" %}
 {% block layout %}
-    <div class="centered-layout">
-        <div style="text-align: center;">
-            <h2>Welcome to ChatLite!</h2>
-            <p style="color: var(--secondary-text);">Select a channel from the sidebar to start chatting.</p>
+    <div class="hero is-large">
+        <div class="hero-body has-text-centered">
+            <p class="title">Welcome to ChatLite!</p>
+            <p class="subtitle">Select a channel from the sidebar to start chatting.</p>
         </div>
     </div>
 {% endblock %}

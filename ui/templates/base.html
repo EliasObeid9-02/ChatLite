@@ -4,53 +4,71 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ChatLite</title>
-        <link rel="stylesheet" href="/static/css/main.css">
-        {% block extra_head %}{% endblock %}
-    </head>
-    <body hx-boost="true" hx-target="#content" hx-ext="ws">
-        <div class="page-container">
-            <nav class="navbar">
-                <a href="{% url 'chats:home' %}" class="brand">ChatLite</a>
-                <div class="nav-links">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'users:profile' username=user.username %}">Profile</a>
-                        <a href="#"
-                           hx-post="{% url 'users:logout' %}"
-                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                           hx-confirm="Are you sure you want to logout?">Logout</a>
-                    {% else %}
-                        <a href="{% url 'users:login' %}">Login</a>
-                        <a href="{% url 'users:register' %}">Register</a>
-                    {% endif %}
-                </div>
-            </nav>
-            <div class="main-layout">
-                {% if user.is_authenticated %}
-                    <div class="sidebar" hx-trigger="load">
-                        <div class="channel-list">
-                            <h3>Channels</h3>
-                            {% for channel in channels %}
-                                <a href="{% url 'chats:channel-chat' channel_id=channel.id %}"
-                                   class="{% if channel.id == active_channel_id %}active{% endif %}">{{ channel.name }}</a>
-                            {% empty %}
-                                <small>No channels yet. Create or join one!</small>
-                            {% endfor %}
-                        </div>
-                        <a href="{% url 'chats:channel-create' %}" class="create-channel-btn">Create New Channel</a>
-                    </div>
-                {% endif %}
-                <main id="content">
-                    {% block layout %}{% endblock %}
-                </main>
-            </div>
-        </div>
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js"
+                integrity="sha384-ZBXiYtYQ6hJ2Y0ZNoYuI+Nq5MqWBr+chMrS/RkXpNzQCApHEhOt2aY8EJgqwHLkJ"
+                crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/htmx-ext-ws@2.0.2"
+                integrity="sha384-vuKxTKv5TX/b3lLzDKP2U363sOAoRo5wSvzzc3LJsbaQRSBSS+3rKKHcOx5J8doU"
+                crossorigin="anonymous"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 document.cookie = "django_timezone=" + timezone + ";path=/;max-age=" + (7 * 24 * 60 * 60);
             });
         </script>
-        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-        <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    </head>
+    <body hx-boost="true" hx-target="#content" hx-ext="ws">
+        <div class="container is-fluid">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <a href="{% url 'chats:home' %}" class="navbar-item">ChatLite</a>
+                </div>
+                <div class="navbar-menu">
+                    <div class="navbar-end">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'users:profile' username=user.username %}"
+                               class="navbar-item">Profile</a>
+                            <a href="#"
+                               class="navbar-item"
+                               hx-post="{% url 'users:logout' %}"
+                               hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                               hx-confirm="Are you sure you want to logout?">Logout</a>
+                        {% else %}
+                            <a href="{% url 'users:login' %}" class="navbar-item">Login</a>
+                            <a href="{% url 'users:register' %}" class="navbar-item">Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+            <hr class="mt-0 has-background-grey">
+            <div class="columns">
+                {% if user.is_authenticated %}
+                    <div class="column is-one-fifth is-flex is-flex-direction-column">
+                        <aside class="menu is-flex-grow-1">
+                            <p class="menu-label">Channels</p>
+                            <ul class="menu-list">
+                                {% for channel in channels %}
+                                    <li>
+                                        <a href="{% url 'chats:channel-chat' channel_id=channel.id %}"
+                                           class="{% if channel.id == active_channel_id %}is-active{% endif %}">{{ channel.name }}</a>
+                                    </li>
+                                {% empty %}
+                                    <li>
+                                        <small>No channels yet. Create or join one!</small>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </aside>
+                        <a href="{% url 'chats:channel-create' %}"
+                           class="button is-primary is-fullwidth">Create New Channel</a>
+                    </div>
+                {% endif %}
+                <main id="content" class="column">
+                    {% block layout %}{% endblock %}
+                </main>
+            </div>
+        </div>
     </body>
 </html>
