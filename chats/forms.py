@@ -20,9 +20,18 @@ class ChannelCreateForm(forms.ModelForm):
         model = Channel
         fields = ("name", "description")
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "Channel Name"}),
+            "name": forms.TextInput(
+                attrs={
+                    "placeholder": "Channel Name",
+                    "class": "input",
+                }
+            ),
             "description": forms.Textarea(
-                attrs={"placeholder": "Channel Description (optional)", "rows": 3}
+                attrs={
+                    "placeholder": "Channel Description (optional)",
+                    "rows": 3,
+                    "class": "textarea",
+                }
             ),
         }
 
@@ -32,9 +41,18 @@ class ChannelUpdateForm(forms.ModelForm):
         model = Channel
         fields = ("name", "description")
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "New Channel Name"}),
+            "name": forms.TextInput(
+                attrs={
+                    "placeholder": "New Channel Name",
+                    "class": "input",
+                }
+            ),
             "description": forms.Textarea(
-                attrs={"placeholder": "New Channel Description (optional)", "rows": 3}
+                attrs={
+                    "placeholder": "New Channel Description (optional)",
+                    "rows": 3,
+                    "class": "textarea",
+                }
             ),
         }
 
