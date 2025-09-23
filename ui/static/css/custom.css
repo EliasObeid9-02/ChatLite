@@ -1,0 +1,17 @@
+.reaction-menu {
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0px 0 1px rgba(10, 10, 10, 0.02);
+    padding: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    position: absolute;
+    z-index: 1000;
+}
+
+.reaction-menu-item {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}

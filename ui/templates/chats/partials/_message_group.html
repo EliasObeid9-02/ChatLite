@@ -1,14 +1,21 @@
 {% load tz %}
-<div class="message-group show-author show-avatar">
-    <img src="{{ group.avatar|default:'/static/images/default_avatar.png' }}"
-         alt="Avatar"
-         class="avatar">
-    <div class="messages">
-        <div class="author-name">
-            {{ group.display_name }} <small class="timestamp">{{ group.start_timestamp|localtime|date:"H:i" }}</small>
+<div class="media">
+    <figure class="media-left">
+        <p class="image is-48x48">
+            <img src="{{ group.avatar|default:'/static/images/default_avatar.png' }}"
+                 alt="Avatar"
+                 class="is-rounded">
+        </p>
+    </figure>
+    <div class="media-content">
+        <div class="content">
+            <p>
+                <strong>{{ group.display_name }}</strong> <small>{{ group.start_timestamp|localtime|date:"H:i" }}</small>
+                <br>
+                {% for message in group.messages %}
+                    {% include "chats/partials/_single_message.html" with message_id=message.id message_content=message.content sender_id=message.sender.id timestamp=message.timestamp reaction_counts=message.reaction_counts user_reacted_emojis=message.user_reacted_emojis %}
+                {% endfor %}
+            </p>
         </div>
-        {% for message in group.messages %}
-            {% include "chats/partials/_single_message.html" with message_id=message.id message_content=message.content sender_id=message.sender.id timestamp=message.timestamp reaction_counts=message.reaction_counts user_reacted_emojis=message.user_reacted_emojis %}
-        {% endfor %}
     </div>
 </div>
