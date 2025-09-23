@@ -1,9 +1,17 @@
 {% extends is_htmx_request|yesno:"_base.html,base.html" %}
 {% block title %}Invalid Invite Code{% endblock %}
-{% block content %}
-    <div class="centered-card">
-        <h2>Invalid Invite Code</h2>
-        <p>The invite code you provided is not valid or the channel does not exist.</p>
-        <a href="{% url 'chats:home' %}" class="button">Go to Home</a>
+{% block layout %}
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <div class="card">
+                    <div class="card-content has-text-centered">
+                        <p class="title">Invalid Invite Code</p>
+                        <p class="subtitle">The invite code you provided is not valid or the channel does not exist.</p>
+                        <a href="{% url 'chats:home' %}" class="button is-primary">Go to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
