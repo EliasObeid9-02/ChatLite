@@ -1,5 +1,5 @@
-<div class="reactions" id="reactions-for-message-{{ message_id }}">
+<div class="tags are-small" id="reactions-for-message-{{ message_id }}">
     {% for emoji, count in reaction_counts.items %}
-        <div class="reaction-emoji {% if emoji in user_reacted_emojis %}reacted{% endif %}">{{ emoji }} {{ count }}</div>
+        <span class="tag {% if emoji in user_reacted_emojis %}is-primary{% endif %}">{{ emoji }} {{ count }}</span>
     {% endfor %}
 </div>
