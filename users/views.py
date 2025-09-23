@@ -110,9 +110,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         if request.user != profile_user:
             return render(request, "unauthorized.html")
 
-        form = UserProfileForm(
-            request.POST, request.FILES, instance=profile_user.profile
-        )
+        form = UserProfileForm(request.POST, instance=profile_user.profile)
         if form.is_valid():
             profile_instance = form.save(commit=False)
             picture = request.FILES.get("profile_picture_file")

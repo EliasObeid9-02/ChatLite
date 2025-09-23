@@ -1,17 +1,25 @@
 {% extends is_htmx_request|yesno:"_base.html,base.html" %}
 {% block layout %}
-    <div class="centered-layout">
-        <div class="auth-card">
-            <h2>Login</h2>
-            <form hx-post="{% url 'users:login' %}"
-                  hx-target="#content"
-                  hx-push-url="true"
-                  hx-swap="innerHTML">
-                {% csrf_token %}
-                {% include "partials/_form.html" %}
-                <button type="submit" class="btn">Login</button>
-                <a href="{% url 'users:register' %}" class="form-link">Don't have an account? Register</a>
-            </form>
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-two-fifths">
+                <div class="card">
+                    <div class="card-content has-text-centered">
+                        <p class="title">Login</p>
+                        <form hx-post="{% url 'users:login' %}"
+                              hx-target="#content"
+                              hx-push-url="true"
+                              hx-swap="innerHTML">
+                            {% csrf_token %}
+                            {% include "partials/_form.html" %}
+                            <button type="submit" class="button is-primary">Login</button>
+                            <p class="mt-4">
+                                <a href="{% url 'users:register' %}" class="is-link">Don't have an account? Register</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

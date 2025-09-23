@@ -23,6 +23,16 @@
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         document.cookie =
           "django_timezone=" + timezone + ";path=/;max-age=" + 7 * 24 * 60 * 60;
+
+        // Navbar burger toggle
+        const burger = document.querySelector(".navbar-burger");
+        const menu = document.querySelector(".navbar-menu");
+        if (burger && menu) {
+          burger.addEventListener("click", function () {
+            burger.classList.toggle("is-active");
+            menu.classList.toggle("is-active");
+          });
+        }
       });
 
       function highlightActiveChannel() {
@@ -48,6 +58,12 @@
       <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
           <a href="{% url 'chats:home' %}" class="navbar-item">ChatLite</a>
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
         </div>
         <div class="navbar-menu">
           <div class="navbar-end">
@@ -79,7 +95,14 @@
         {% if user.is_authenticated %}
         <div class="column is-one-fifth is-flex is-flex-direction-column">
           <aside class="menu is-flex-grow-1">
-            <p class="menu-label">Channels</p>
+            <div class="is-flex is-justify-content-space-between is-align-items-center">
+              <p class="menu-label">Channels</p>
+              <a href="{% url 'chats:channel-create' %}" class="has-text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="24" height="24" fill="currentColor">
+                  <path d="M352 128C352 110.3 337.7 96 320 96C302.3 96 288 110.3 288 128L288 288L128 288C110.3 288 96 302.3 96 320C96 337.7 110.3 352 128 352L288 352L288 512C288 529.7 302.3 544 320 544C337.7 544 352 529.7 352 512L352 352L512 352C529.7 352 544 337.7 544 320C544 302.3 529.7 288 512 288L352 288L352 128z"/>
+                </svg>
+              </a>
+            </div>
             <ul class="menu-list">
               {% for channel in channels %}
               <li>
@@ -94,9 +117,6 @@
               {% endfor %}
             </ul>
           </aside>
-          <a href="{% url 'chats:channel-create' %}" class="button is-primary"
-            >Create New Channel</a
-          >
         </div>
         {% endif %}
         <main id="content" class="column">

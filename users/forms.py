@@ -14,31 +14,41 @@ class UserRegisterForm(BaseUserCreationForm):
     class Meta(BaseUserCreationForm.Meta):
         model = User
         fields = ("username", "email")
+        widgets = {
+            "username": forms.TextInput(
+                attrs={
+                    "placeholder": "Username",
+                    "class": "input",
+                }
+            ),
+            "email": forms.EmailInput(
+                attrs={
+                    "placeholder": "Email",
+                    "class": "input",
+                }
+            ),
+        }
 
-    widgets = {
-        "username": forms.TextInput(attrs={"class": "form-control"}),
-        "email": forms.EmailInput(attrs={"class": "form-control"}),
-        "password1": forms.PasswordInput(attrs={"class": "form-control"}),
-        "password2": forms.PasswordInput(attrs={"class": "form-control"}),
-    }
-
-    def save(self, commit=True):
-        """
-        Save the user and then save the display_name to the user's profile.
-        """
-        user = super().save(commit=commit)
-        return user
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["password1"].widget = forms.PasswordInput(
+            attrs={
+                "placeholder": "Password",
+                "class": "input",
+            }
+        )
+        self.fields["password2"].widget = forms.PasswordInput(
+            attrs={
+                "placeholder": "Password Confirmation",
+                "class": "input",
+            }
+        )
 
 
 class AuthenticationForm(BaseAuthenticationForm):
     """
     Login form to allow login with either username or email.
     """
-
-    widgets = {
-        "identifier": forms.TextInput(attrs={"class": "form-control"}),
-        "password": forms.PasswordInput(attrs={"class": "form-control"}),
-    }
 
     def clean(self):
         identifier = self.cleaned_data.get("username")
@@ -65,8 +75,23 @@ class AuthenticationForm(BaseAuthenticationForm):
                 raise self.get_invalid_login_error()
             else:
                 self.confirm_login_allowed(self.user_cache)
-
         return self.cleaned_data
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "Username or Email"
+        self.fields["username"].widget = forms.TextInput(
+            attrs={
+                "placeholder": "Username or Email",
+                "class": "input",
+            }
+        )
+        self.fields["password"].widget = forms.PasswordInput(
+            attrs={
+                "placeholder": "Password",
+                "class": "input",
+            }
+        )
 
 
 class UserProfileForm(forms.ModelForm):
@@ -74,21 +99,14 @@ class UserProfileForm(forms.ModelForm):
     Form for updating the UserProfile.
     """
 
-    profile_picture_file = forms.ImageField(
-        required=False,
-        label="Upload New Profile Picture",
-    )
-
-    widgets = {
-        "display_name": forms.TextInput(attrs={"class": "form-control"}),
-        "profile_picture_file": forms.ClearableFileInput(
-            attrs={
-                "class": "form-control",
-                "accept": "image/png, image/jpeg, image/gif",
-            }
-        ),
-    }
-
     class Meta:
         model = UserProfile
         fields = ("display_name",)
+        widgets = {
+            "display_name": forms.TextInput(
+                attrs={
+                    "placeholder": "Display name",
+                    "class": "input",
+                }
+            ),
+        }

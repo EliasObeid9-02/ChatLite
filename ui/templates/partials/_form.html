@@ -1,16 +1,39 @@
 {% if form.non_field_errors %}
-    <div class="error form-errors">
+    <div class="notification is-danger">
         {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
     </div>
 {% endif %}
 {% for field in form %}
-    <div class="form-group">
-        <label for="{{ field.id_for_label }}">
+    <div class="field">
+        <label class="is-pulled-left label" for="{{ field.id_for_label }}">
             {{ field.label }}
-            {% if field.field.required %}<span style="color: var(--accent-color);">*</span>{% endif %}
+            {% if field.field.required %}<span class="has-text-danger">*</span>{% endif %}
         </label>
-        {{ field }}
-        {% if field.errors %}<div class="error">{{ field.errors.0 }}</div>{% endif %}
-        {% if field.help_text %}<small class="helper-text">{{ field.help_text }}</small>{% endif %}
+        <div class="control">{{ field }}</div>
+        {% if field.errors %}<p class="help is-danger">{{ field.errors.0 }}</p>{% endif %}
+        {% if field.help_text %}
+            <div id="help-text-{{ field.id_for_label }}"
+                 class="help content is-hidden has-text-left">{{ field.help_text }}</div>
+        {% endif %}
     </div>
 {% endfor %}
+<script>
+  function setupHiddenHelpText() {
+        document.querySelectorAll('input, textarea, select').forEach(function (input) {
+            const helpTextId = 'help-text-' + input.id;
+            const helpText = document.getElementById(helpTextId);
+
+            if (helpText) {
+                input.addEventListener('focus', function () {
+                    helpText.classList.remove('is-hidden');
+                });
+
+                input.addEventListener('blur', function () {
+                    helpText.classList.add('is-hidden');
+                });
+            }
+        });
+  }
+    document.addEventListener('DOMContentLoaded', setupHiddenHelpText);
+    document.addEventListener('htmx:afterSwap', setupHiddenHelpText);
+</script>
